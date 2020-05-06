@@ -11,5 +11,11 @@ public class Constants {
     public final static String S3_SECRET="S3_SECRET";
     public final static String S3_BUCKET="S3_BUCKET";
     public final static String S3_INPUT_PATH="S3_INPUT_PATH";
+    public final static String REDSHIFT_USER="REDSHIFT_USER";
+    public final static String REDSHIFT_PASSWORD="REDSHIFT_PASSWORD";
+    public final static String REDSHIFT_TABLE_NAME="REDSHIFT_TABLE_NAME";
+    public final static String REDSHIFT_DELIMITER="REDSHIFT_DELIMITER";
+    public final static String REDSHIFT_FILENAME="REDSHIFT_FILENAME";
+
 
 }
