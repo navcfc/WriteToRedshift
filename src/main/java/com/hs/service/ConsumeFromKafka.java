@@ -62,11 +62,17 @@ public class ConsumeFromKafka {
 
 
                 if (record.key().trim().equalsIgnoreCase("count") && Integer.valueOf(record.value().trim())>0){
-                    System.out.println("In the count check");
+                    System.out.println("In the count check if clause");
+
+                    FileService fileService = new FileService();
+                    String maxTimestamp = fileService.fetchTimestamp();
+//                    fileService.updateTimestamp();
                     CopyFromPostgres copyFromPostgres = new CopyFromPostgres();
-                    copyFromPostgres.copyFromPostgresToFile();
+                    copyFromPostgres.copyFromPostgresToFile(maxTimestamp);
                     UploadToS3 uploadToS3 = new UploadToS3();
                     uploadToS3.uploadFile();
+                    CopyFromS3ToRedshift copyFromS3ToRedshift = new CopyFromS3ToRedshift();
+                    copyFromS3ToRedshift.moveToRedshift();
 
                 }
             }}

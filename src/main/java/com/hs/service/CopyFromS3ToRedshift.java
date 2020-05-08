@@ -27,8 +27,6 @@ public class CopyFromS3ToRedshift {
 
 
             System.out.println("Connecting to Redshift database......");
-            //In case you are using postgreSQL jdbc driver.
-            //conn = DriverManager.getConnection("jdbc:postgresql://********8-your-to-redshift.redshift.amazonaws.com:5439/example-database", props);
 
             conn = DriverManager.getConnection("jdbc:redshift://hiring-eval-cluster.ckvpogridq1r.us-east-1.redshift.amazonaws.com:5439/test_eval_navin", username, password);
 
@@ -36,13 +34,13 @@ public class CopyFromS3ToRedshift {
 
             statement = conn.createStatement();
 
-            String command = "COPY " + tableName + " from 's3://" + bucketName + "/" + fileName + "' CREDENTIALS 'aws_access_key_id=" + accessKey.trim() + ";aws_secret_access_key=" + secretKey + "' CSV DELIMITER '" + delimiter + "'";
+            String command = "COPY " + tableName + " from 's3://" + bucketName + "/" + fileName + "' CREDENTIALS 'aws_access_key_id=" + accessKey.trim() + ";aws_secret_access_key=" + secretKey + "' CSV DELIMITER '" + delimiter + "' ignoreheader 1 maxerror 10";
 
+            System.out.println("command: " + command);
             System.out.println("==========Executing the copy command=========");
 
             statement.executeUpdate(command);
-            //you must need to commit, if you realy want to have data saved, otherwise it will not appear if you query from other session.
-//            conn.commit();
+
             System.out.println("Copied the file " + fileName + " from s3 to Redshift table");
             statement.close();
             conn.close();
