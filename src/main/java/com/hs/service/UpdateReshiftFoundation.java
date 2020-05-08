@@ -8,9 +8,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class CopyFromS3ToRedshift {
+public class UpdateReshiftFoundation {
 
-    public void moveToRedshift() {
+    public void updateFoundationTable(){
         Connection conn = null;
         Statement statement = null;
         try {

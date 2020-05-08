@@ -5,6 +5,7 @@ import com.hs.service.*;
 import com.hs.util.PGUtil;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.concurrent.ExecutionException;
 
 //class Helper extends TimerTask
@@ -44,13 +45,19 @@ public class RedshiftPipeline
 //        uploadToS3.uploadFile();
 
 
-//        CopyFromS3ToRedshift copyFromS3ToRedshift = new CopyFromS3ToRedshift();
+//        RedshiftService copyFromS3ToRedshift = new RedshiftService();
 //        copyFromS3ToRedshift.moveToRedshift();
 
         //working -- UNCOMMENT
         ConsumeFromKafka consumeFromKafka = new ConsumeFromKafka();
 
-        consumeFromKafka.readKafkaTopic("test");
+        try {
+            consumeFromKafka.readKafkaTopic("test");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
 
 //        CopyFromPostgresNotWorking copy = new CopyFromPostgresNotWorking();
 //        copy.copyToFile();

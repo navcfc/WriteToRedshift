@@ -1,21 +1,14 @@
 package com.hs.service;
 
-import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.ListTopicsOptions;
-import org.apache.kafka.clients.admin.ListTopicsResult;
-import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 public class ConsumeFromKafka {
 
@@ -37,7 +30,7 @@ public class ConsumeFromKafka {
     }
 
 
-    public void readKafkaTopic(String topicName) throws IOException {
+    public void readKafkaTopic(String topicName) throws IOException, SQLException, ClassNotFoundException {
         //Kafka consumer configuration settings
 
         Properties properties = getProperties();
@@ -71,8 +64,12 @@ public class ConsumeFromKafka {
                     copyFromPostgres.copyFromPostgresToFile(maxTimestamp);
                     UploadToS3 uploadToS3 = new UploadToS3();
                     uploadToS3.uploadFile();
-                    CopyFromS3ToRedshift copyFromS3ToRedshift = new CopyFromS3ToRedshift();
-                    copyFromS3ToRedshift.moveToRedshift();
+                    RedshiftService service = new RedshiftService();
+
+                    service.truncateRedshiftStageTable();
+                    service.moveToRedshiftStagingTable();
+                    service.insertNewRecordsIntoRedshiftFoundation();
+                    service.updateFoundationTable();
 
                 }
             }}
