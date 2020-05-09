@@ -38,6 +38,7 @@ public class FileService {
         BufferedWriter writer = new BufferedWriter(new FileWriter(timeFilePath));
         writer.write(maxTime);
 
+        System.out.println("Updated the timestamp with "+ maxTime +" in " + timeFilePath);
         writer.close();
     }
 

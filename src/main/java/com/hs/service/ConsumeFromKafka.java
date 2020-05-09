@@ -71,7 +71,7 @@ public class ConsumeFromKafka {
                     fileService.updateTimestamp(record.value().split(",")[1].trim());
                     CopyFromPostgres copyFromPostgres = new CopyFromPostgres();
                     //copy all the changes that have happened in the source table
-                    copyFromPostgres.copyFromPostgresToFile(maxTimestamp);
+                    copyFromPostgres.copyFromPostgresToFile(maxTimestamp,record.value().split(",")[1].trim());
                     UploadToS3 uploadToS3 = new UploadToS3();
                     //upload the copied file to s3
                     uploadToS3.uploadFile();

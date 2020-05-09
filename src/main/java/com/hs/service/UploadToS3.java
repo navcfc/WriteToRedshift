@@ -27,6 +27,7 @@ public class UploadToS3 {
         String secretKey = PGUtil.getProperty(Constants.S3_SECRET);
         String bucketName = PGUtil.getProperty(Constants.S3_BUCKET);
         String filePath = PGUtil.getProperty(Constants.S3_INPUT_PATH);
+        String redshiftFileName = PGUtil.getProperty(Constants.REDSHIFT_FILENAME);
 
         //Create s3 objects
         AWSCredentials awsCredentials = new BasicAWSCredentials(accessKey,secretKey);
@@ -37,7 +38,7 @@ public class UploadToS3 {
 
 
     //Specify the file name to which it has to be copied in s3
-        String key = "orders.csv";
+        String key = redshiftFileName;
 
         System.out.println("===========================================");
         System.out.println("Uploading a new object to S3 from a file");
@@ -47,14 +48,14 @@ public class UploadToS3 {
 
         System.out.println(key + " file uploaded in s3");
 
-        //Adding timestamp to the file that wil be archived in s3
-        long timeInMillis = System.currentTimeMillis();
-        SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yy_HH_mm_ss");
-        Date resultdate = new Date(timeInMillis);
-        //Copying the content to a new file so as to archive it.
-        CopyObjectRequest copyObjRequest = new CopyObjectRequest(bucketName,
-                key, bucketName+"/orders/", key+"_"+sdf.format(resultdate).toString());
-        s3.copyObject(copyObjRequest);
+//        //Adding timestamp to the file that wil be archived in s3
+//        long timeInMillis = System.currentTimeMillis();
+//        SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yy_HH_mm_ss");
+//        Date resultdate = new Date(timeInMillis);
+//        //Copying the content to a new file so as to archive it.
+//        CopyObjectRequest copyObjRequest = new CopyObjectRequest(bucketName,
+//                key, bucketName+"/orders/", key+"_"+sdf.format(resultdate).toString());
+//        s3.copyObject(copyObjRequest);
 
         //shutdown the s3 connection
         s3.shutdown();
