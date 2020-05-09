@@ -5,6 +5,7 @@ import com.hs.util.PGUtil;
 
 import java.io.*;
 import java.sql.Timestamp;
+import java.util.Calendar;
 
 public class FileService {
 
@@ -36,8 +37,20 @@ public class FileService {
         File file = new File(timeFilePath);
 
 
+        long retryDate = System.currentTimeMillis();
+
+        int sec = -15;
+
+        Timestamp original = new Timestamp(retryDate);
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(original.getTime());
+        cal.add(Calendar.SECOND, sec);
+        Timestamp before = new Timestamp(cal.getTime().getTime());
+
+        System.out.println(original);
+        System.out.println("Updated timestamp is: " +before);
         BufferedWriter writer = new BufferedWriter(new FileWriter(timeFilePath));
-        writer.write(String.valueOf(new Timestamp(System.currentTimeMillis())));
+        writer.write(String.valueOf(before));
 
         writer.close();
     }

@@ -7,11 +7,14 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.hs.constants.Constants;
 import com.hs.util.PGUtil;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class UploadToS3 {
 
@@ -43,6 +46,16 @@ public class UploadToS3 {
         s3.putObject(new PutObjectRequest(bucketName, key, new File(filePath)));
 
         System.out.println(key + " file uploaded in s3");
+
+        //Adding timestamp to the file that wil be archived in s3
+        long timeInMillis = System.currentTimeMillis();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yy_HH_mm_ss");
+        Date resultdate = new Date(timeInMillis);
+        System.out.println(sdf.format("Result date of file name is: " + resultdate));
+        //Copying the content to a new file so as to archive it.
+        CopyObjectRequest copyObjRequest = new CopyObjectRequest(bucketName,
+                key, bucketName, key+"_"+sdf.format(resultdate).toString());
+        s3.copyObject(copyObjRequest);
 
         //shutdown the s3 connection
         s3.shutdown();
