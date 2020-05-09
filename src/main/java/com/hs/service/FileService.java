@@ -10,6 +10,12 @@ public class FileService {
 
     String timeFilePath = PGUtil.getProperty(Constants.TIME_FILE_PATH);
 
+    /**
+     * fetch the timestamp from the file
+     *
+     * @return the timestamp
+     * @throws IOException
+     */
     public String fetchTimestamp() throws IOException {
         File file = new File(timeFilePath);
 
@@ -22,6 +28,10 @@ public class FileService {
         return st;
     }
 
+    /**
+     * update the timestamp to current timestamp in the file
+     * @throws IOException
+     */
     public void updateTimestamp() throws IOException {
         File file = new File(timeFilePath);
 

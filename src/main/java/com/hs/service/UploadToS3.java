@@ -15,6 +15,9 @@ import java.io.File;
 
 public class UploadToS3 {
 
+    /**
+     * This method uploads the file from postgres to S3
+     */
     public void uploadFile() {
 
         String accessKey = PGUtil.getProperty(Constants.S3_KEY);
@@ -22,6 +25,7 @@ public class UploadToS3 {
         String bucketName = PGUtil.getProperty(Constants.S3_BUCKET);
         String filePath = PGUtil.getProperty(Constants.S3_INPUT_PATH);
 
+        //Create s3 objects
         AWSCredentials awsCredentials = new BasicAWSCredentials(accessKey,secretKey);
         AmazonS3 s3 = new AmazonS3Client(awsCredentials);
 //        AmazonS3 s3 = new AmazonS3Client();
@@ -29,18 +33,18 @@ public class UploadToS3 {
         s3.setRegion(usEast1);
 
 
-//        String bucketName = "hiring-eval-navin";
+    //Specify the file name to which it has to be copied in s3
         String key = "orders.csv";
 
         System.out.println("===========================================");
-        System.out.println("Getting Started with Amazon S3");
+        System.out.println("Uploading a new object to S3 from a file");
         System.out.println("===========================================\n");
 
-        System.out.println("Uploading a new object to S3 from a file\n");
         s3.putObject(new PutObjectRequest(bucketName, key, new File(filePath)));
 
-        System.out.println("Uploaded");
+        System.out.println(key + " file uploaded in s3");
 
+        //shutdown the s3 connection
         s3.shutdown();
     }
 

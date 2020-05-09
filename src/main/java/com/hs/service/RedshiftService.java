@@ -8,7 +8,7 @@ import java.sql.*;
 public class RedshiftService {
 
 
-//    public static void main(String args[]) throws SQLException, ClassNotFoundException {
+    //    public static void main(String args[]) throws SQLException, ClassNotFoundException {
 //
 //        PGUtil.loadConfigFile("C:\\Users\\DELL\\hungerstation\\application.properties");
 //        RedshiftService service = new RedshiftService();
@@ -28,7 +28,6 @@ public class RedshiftService {
             String password = PGUtil.getProperty(Constants.REDSHIFT_PASSWORD);
 
 
-
             System.out.println("Connecting to Redshift database......");
 
             conn = DriverManager.getConnection("jdbc:redshift://hiring-eval-cluster.ckvpogridq1r.us-east-1.redshift.amazonaws.com:5439/test_eval_navin", username, password);
@@ -40,6 +39,7 @@ public class RedshiftService {
 
         return conn;
     }
+
     public void moveToRedshiftStagingTable() throws SQLException, ClassNotFoundException {
 
         Statement statement = null;
@@ -63,7 +63,7 @@ public class RedshiftService {
 
             statement.executeUpdate(command);
 
-            System.out.println("Copied the file " + fileName + " from s3 to "+stageTableName+" Redshift table");
+            System.out.println("Copied the file " + fileName + " from s3 to " + stageTableName + " Redshift table");
             statement.close();
             conn.close();
         } catch (Exception ex) {
@@ -88,6 +88,12 @@ public class RedshiftService {
     }
 
 
+    /**
+     * truncate the staging table before copying the contents to it
+     *
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     public void truncateRedshiftStageTable() throws SQLException, ClassNotFoundException {
 
         Statement statement = null;
@@ -131,7 +137,11 @@ public class RedshiftService {
     }
 
 
-
+    /**
+     * Insert the new records into redshift foundation table without having to check anything
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     public void insertNewRecordsIntoRedshiftFoundation() throws SQLException, ClassNotFoundException {
 
         Statement statement = null;
@@ -144,14 +154,14 @@ public class RedshiftService {
 
             statement = conn.createStatement();
 
-            String command = "insert into "+tableName+" (select stage.* from "+stageTableName+" stage left join "+tableName+" foundation on stage.id = foundation.id where foundation.id is  null) ";
+            String command = "insert into " + tableName + " (select stage.* from " + stageTableName + " stage left join " + tableName + " foundation on stage.id = foundation.id where foundation.id is  null) ";
 
             System.out.println("insert command: " + command);
             System.out.println("==========Executing the insert table command=========");
 
             int countInserted = statement.executeUpdate(command);
 
-            System.out.println("Inserted "+countInserted+" into " + tableName +" from " + stageTableName);
+            System.out.println("Inserted " + countInserted + " into " + tableName + " from " + stageTableName);
             statement.close();
             conn.close();
         } catch (Exception ex) {
@@ -176,7 +186,14 @@ public class RedshiftService {
     }
 
 
-
+    /**
+     * this method updates the foundation table in a series of steps
+     * first step: select the ids which have to be updated
+     * second step: delete the records from the foundation table
+     * third step: insert the records from staging table
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     public void updateFoundationTable() throws SQLException, ClassNotFoundException {
 
         Statement selectStatement = null;
@@ -191,21 +208,24 @@ public class RedshiftService {
             //Selecting all the ids which have to be udpated
             selectStatement = conn.createStatement();
 
-            String command = "select stage.id from "+stageTableName+" stage left join "+tableName+" foundation on stage.id = foundation.id where foundation.id is not null and stage.updated_at > foundation.updated_at ";
+            String command = "select stage.id from " + stageTableName + " stage left join " + tableName + " foundation on stage.id = foundation.id where foundation.id is not null and stage.updated_at > foundation.updated_at ";
 
             System.out.println("select command to see all update records: " + command);
             System.out.println("==========Executing the select table command=========");
 
             ResultSet rs = selectStatement.executeQuery(command);
+            //create a builder obhect to create a comma separated quoted text field
+            //that has to be used in the "in" clause
             StringBuilder builder = new StringBuilder();
             int i = 0;
             while (rs.next()) {
                 i++;
-               builder.append("'"+rs.getInt(1)+"',");
+                builder.append("'" + rs.getInt(1) + "',");
             }
 
-            if(i>1)
-                builder.deleteCharAt(builder.length()-1);
+            if (i > 1)
+                //delete the comma at the end of the builder object
+                builder.deleteCharAt(builder.length() - 1);
 
             System.out.println("List to delete from foundation table for update is: " + builder.toString());
             selectStatement.close();
@@ -214,7 +234,7 @@ public class RedshiftService {
 
             //Time to delete the selected ids from the foundation table
 
-            if(i > 1) {
+            if (i > 1) {
                 deleteStatement = conn.createStatement();
 
                 String deletecommand = "delete from " + tableName + " where id in (" + builder.toString() + ")";
@@ -233,7 +253,7 @@ public class RedshiftService {
                 String insertCommand = "insert into dwh.orders ( select stage.* from dwh.orders_stage stage where id in(" + builder.toString() + ") )";
 
                 System.out.println("insert command to insert all updated records: " + insertCommand);
-                System.out.println("==========Executing the delete table command=========");
+                System.out.println("==========Executing the insert into table command=========");
 
                 int countInsert = insertStatement.executeUpdate(insertCommand);
                 System.out.println(countInsert + " records updated in the foundation table ");

@@ -30,6 +30,9 @@ public class ConsumeFromKafka {
     }
 
 
+    /**
+     *  consumer method to read the kafka topic
+     */
     public void readKafkaTopic(String topicName) throws IOException, SQLException, ClassNotFoundException {
         //Kafka consumer configuration settings
 
@@ -38,7 +41,7 @@ public class ConsumeFromKafka {
         KafkaConsumer<String, String> consumer = new KafkaConsumer
                 <String, String>(properties);
 
-        //Kafka Consumer subscribes list of topics here.
+        //Kafka Consumer subscribes to list of topics here.
         consumer.subscribe(Arrays.asList(topicName));
 
         //print the topic name
@@ -46,29 +49,36 @@ public class ConsumeFromKafka {
         int i = 0;
 
         while (true) {
+            //polling with a timeout of 100 ms
             ConsumerRecords<String, String> records = consumer.poll(100);
             for (ConsumerRecord<String, String> record : records) {
                 // print the offset,key and value for the consumer records.
                 System.out.printf("offset = %d, key = %s, value = %s\n",
                         record.offset(), record.key(), record.value());
 
-
-
+                // check if count has any values to trigger the process
                 if (record.key().trim().equalsIgnoreCase("count") && Integer.valueOf(record.value().trim())>0){
                     System.out.println("In the count check if clause");
 
                     FileService fileService = new FileService();
+                    //fetch the timestamp from the file
                     String maxTimestamp = fileService.fetchTimestamp();
-//                    fileService.updateTimestamp();
+                    //update the timestamp with the current timestamp
+                    fileService.updateTimestamp();
                     CopyFromPostgres copyFromPostgres = new CopyFromPostgres();
+                    //copy all the changes that have happened in the source table
                     copyFromPostgres.copyFromPostgresToFile(maxTimestamp);
                     UploadToS3 uploadToS3 = new UploadToS3();
+                    //upload the copied file to s3
                     uploadToS3.uploadFile();
                     RedshiftService service = new RedshiftService();
-
+                    //truncate the staging redshift table to copy from s3
                     service.truncateRedshiftStageTable();
+                    //copy from s3 to staging table
                     service.moveToRedshiftStagingTable();
+                    //insert new records direcly into foundation reshift table
                     service.insertNewRecordsIntoRedshiftFoundation();
+                    //update the foundation table
                     service.updateFoundationTable();
 
                 }
