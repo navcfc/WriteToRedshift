@@ -33,24 +33,10 @@ public class FileService {
      * update the timestamp to current timestamp in the file
      * @throws IOException
      */
-    public void updateTimestamp() throws IOException {
-        File file = new File(timeFilePath);
+    public void updateTimestamp(String maxTime) throws IOException {
 
-
-        long retryDate = System.currentTimeMillis();
-
-        int sec = -15;
-
-        Timestamp original = new Timestamp(retryDate);
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(original.getTime());
-        cal.add(Calendar.SECOND, sec);
-        Timestamp before = new Timestamp(cal.getTime().getTime());
-
-        System.out.println(original);
-        System.out.println("Updated timestamp is: " +before);
         BufferedWriter writer = new BufferedWriter(new FileWriter(timeFilePath));
-        writer.write(String.valueOf(before));
+        writer.write(maxTime);
 
         writer.close();
     }

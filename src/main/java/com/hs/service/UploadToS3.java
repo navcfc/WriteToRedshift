@@ -51,10 +51,9 @@ public class UploadToS3 {
         long timeInMillis = System.currentTimeMillis();
         SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yy_HH_mm_ss");
         Date resultdate = new Date(timeInMillis);
-        System.out.println(sdf.format("Result date of file name is: " + resultdate));
         //Copying the content to a new file so as to archive it.
         CopyObjectRequest copyObjRequest = new CopyObjectRequest(bucketName,
-                key, bucketName, key+"_"+sdf.format(resultdate).toString());
+                key, bucketName+"/orders/", key+"_"+sdf.format(resultdate).toString());
         s3.copyObject(copyObjRequest);
 
         //shutdown the s3 connection

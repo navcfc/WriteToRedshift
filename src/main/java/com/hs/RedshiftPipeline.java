@@ -26,7 +26,7 @@ public class RedshiftPipeline {
 
         try {
             //read the kafka topic
-            consumeFromKafka.readKafkaTopic("test");
+            consumeFromKafka.readKafkaTopic();
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {

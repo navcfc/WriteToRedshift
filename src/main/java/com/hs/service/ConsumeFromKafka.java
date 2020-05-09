@@ -1,5 +1,7 @@
 package com.hs.service;
 
+import com.hs.constants.Constants;
+import com.hs.util.PGUtil;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -33,8 +35,10 @@ public class ConsumeFromKafka {
     /**
      *  consumer method to read the kafka topic
      */
-    public void readKafkaTopic(String topicName) throws IOException, SQLException, ClassNotFoundException {
+    public void readKafkaTopic() throws IOException, SQLException, ClassNotFoundException {
         //Kafka consumer configuration settings
+
+        String topicName = PGUtil.getProperty(Constants.TOPIC_NAME);
 
         Properties properties = getProperties();
 
@@ -57,14 +61,14 @@ public class ConsumeFromKafka {
                         record.offset(), record.key(), record.value());
 
                 // check if count has any values to trigger the process
-                if (record.key().trim().equalsIgnoreCase("count") && Integer.valueOf(record.value().trim())>0){
+                if (record.key().trim().equalsIgnoreCase("count") && Integer.valueOf(record.value().split(",")[0].trim())>0){
                     System.out.println("In the count check if clause");
 
                     FileService fileService = new FileService();
                     //fetch the timestamp from the file
                     String maxTimestamp = fileService.fetchTimestamp();
                     //update the timestamp with the current timestamp
-                    fileService.updateTimestamp();
+                    fileService.updateTimestamp(record.value().split(",")[1].trim());
                     CopyFromPostgres copyFromPostgres = new CopyFromPostgres();
                     //copy all the changes that have happened in the source table
                     copyFromPostgres.copyFromPostgresToFile(maxTimestamp);
