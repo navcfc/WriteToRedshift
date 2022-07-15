@@ -74,7 +74,7 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-s3</artifactId>
-            <version>1.11.775</version>
+            <version>1.12.261</version>
         </dependency>
 
 
@@ -82,7 +82,7 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-s3</artifactId>
-            <version>1.11.775</version>
+            <version>1.12.261</version>
         </dependency>
 
 <!--        &lt;!&ndash; https://mvnrepository.com/artifact/com.amazon.redshift/redshift-jdbc42-no-awssdk &ndash;&gt;-->
